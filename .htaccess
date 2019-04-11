@@ -79,8 +79,8 @@ RewriteRule ^(.*)$ index.php [F,L]
 RewriteEngine on
 RewriteCond %{HTTP_REFERER} !^$
 RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?yourdomain.tld/directory [NC]
-RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?zarizee.com [NC]
-RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?google.com [NC]
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?yourdomain.tld [NC]
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?otherdomain.tld [NC]
 RewriteRule \.(jpg|jpeg|png|gif)$ – [NC,F,L]
 
 #BLOCK USERNAME ENUMERATION
