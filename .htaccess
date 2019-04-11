@@ -1,0 +1,92 @@
+#default wordpress .htaccess file content runs from line 2 through 11
+# BEGIN WordPress
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+# END WordPress
+
+#prevent directory browsing
+Options -Indexes
+
+#PROTECT ALL VULNERABLE FILES
+
+<FilesMatch "^.*(error_log|wp-config\.php|php.ini|\.[hH][tT][aApP].*)$">
+Order deny,allow
+Deny from all
+</FilesMatch>
+
+#DISABLE ACCESS TO THE WP-INCLUDES FOLDER
+
+<IfModule mod_rewrite.c> 
+RewriteEngine On 
+RewriteBase / 
+RewriteRule ^wp-admin/includes/ - [F,L] 
+RewriteRule !^wp-includes/ - [S=3] 
+RewriteRule ^wp-includes/[^/]+\.php$ - [F,L] 
+RewriteRule ^wp-includes/js/tinymce/langs/.+\.php - [F,L] 
+RewriteRule ^wp-includes/theme-compat/ - [F,L] 
+</IfModule>
+
+#RESTRICT DIRECT ACCESS TO PHP FILES
+
+RewriteCond %{REQUEST_URI} !^/wp-content/plugins/file/to/exclude\.php
+RewriteCond %{REQUEST_URI} !^/wp-content/plugins/directory/to/exclude/
+RewriteRule wp-content/plugins/(.*\.php)$ - [R=404,L]
+RewriteCond %{REQUEST_URI} !^/wp-content/themes/file/to/exclude\.php
+RewriteCond %{REQUEST_URI} !^/wp-content/themes/directory/to/exclude/
+RewriteRule wp-content/themes/(.*\.php)$ - [R=404,L]
+
+#REMOVE SUPPORT FOR XML-RPC
+
+<FilesMatch "^(xmlrpc\.php)">
+Order deny,allow
+Deny from all
+</FilesMatch>
+
+#ENABLE BROWSER CACHING
+
+
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType image/jpg "access 1 year"
+ExpiresByType image/jpeg "access 1 year"
+ExpiresByType image/gif "access 1 year"
+ExpiresByType image/png "access 1 year"
+ExpiresByType text/css "access 1 month"
+ExpiresByType application/pdf "access 1 month"
+ExpiresByType text/x-javascript "access 1 month"
+ExpiresByType application/x-shockwave-flash "access 1 month"
+ExpiresByType image/x-icon "access 1 year"
+ExpiresDefault "access 2 days"
+</IfModule>
+
+# PREVENT MALICIOUS SCRIPT INJECTIONS
+
+Options +FollowSymLinks
+RewriteEngine On
+RewriteCond %{QUERY_STRING} (<|%3C).*script.*(>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} GLOBALS(=|[|%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{QUERY_STRING} _REQUEST(=|[|%[0-9A-Z]{0,2})
+RewriteRule ^(.*)$ index.php [F,L]
+
+#PREVENT IMAGE HOTLINKING ONLY LIST DOMAIN THAT SHOULD HAVE ACCESS TO THE IMAGES. ALSO SPECIFY THE FILE EXTENTION TO BE PROTECTED FROM BEING HOTLINKED
+
+RewriteEngine on
+RewriteCond %{HTTP_REFERER} !^$
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?yourdomain.tld/directory [NC]
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?zarizee.com [NC]
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?google.com [NC]
+RewriteRule \.(jpg|jpeg|png|gif)$ – [NC,F,L]
+
+#BLOCK USERNAME ENUMERATION
+
+RewriteEngine on
+RewriteBase /
+RewriteCond %{QUERY_STRING} author=d
+RewriteRule ^ /? [L,R=301]
+
